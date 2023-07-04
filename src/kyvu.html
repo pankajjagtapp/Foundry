@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LazyMinting</title>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.6.9/ethers.umd.min.js"></script>
+</head>
+<body>
+  <script type="text/javascript">
+    const SIGNING_DOMAIN_NAME = "Voucher-Domain"
+    const SIGNING_DOMAIN_VERSION = "1"
+    const chainId = 1
+    const contractAddress = "0xF62849F9A0B5Bf2913b396098F7c7019b51A820a" // Put the address here from remix
+//503f38a9c967ed597e47fe25643985f032b072db8075426a92110f82df48dfcb
+    const signer = new ethers.Wallet("b46b46e7a4e69c884ae4b64772760c0c79648e8553dfe5dc3b69e8c8d29b0375") // private key that I use for address 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4
+
+    const domain = {
+      name: SIGNING_DOMAIN_NAME,
+      version: SIGNING_DOMAIN_VERSION,
+      verifyingContract: contractAddress,
+      chainId
+    }
+
+    async function createVoucher(price, uri) {
+      const voucher = { price, uri }
+      const types = {
+        LazyNFTVoucher: [
+          {name: "price", type: "uint256"},
+          {name: "uri", type: "string"},
+        ]   
+      }
+
+      const signature = await signer._signTypedData(domain, types, voucher)
+      return {
+        ...voucher,
+        signature
+      }
+    }
+
+    async function main() {
+      const voucher = await createVoucher(0, "spoof_uri") // the address is the address which receives the NFT
+      console.log(`[${voucher.price}, "${voucher.uri}", "${voucher.signature}"]`)
+    }
+  </script>
+</body>
+</html>
